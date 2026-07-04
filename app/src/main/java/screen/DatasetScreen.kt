@@ -16,25 +16,48 @@ fun DatasetScreen(
         comment: String
     ) -> Unit
 ) {
-    var frameType by remember { mutableStateOf("Дадан 300") }
-    var frameSide by remember { mutableStateOf("A") }
-    var mainContent by remember { mutableStateOf("Змішана") }
-    var comment by remember { mutableStateOf("") }
+
+    var frameType by remember {
+        mutableStateOf("Дадан 300")
+    }
+
+    var frameSide by remember {
+        mutableStateOf("Ліва")
+    }
+
+    var mainContent by remember {
+        mutableStateOf("Змішана")
+    }
+
+    var comment by remember {
+        mutableStateOf("")
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp)
     ) {
+
         Text("🧬 Дані для навчання AI")
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
         Text("Тип рамки")
+
         Row {
-            listOf("Дадан 300", "Магазин 145", "Рута").forEach { item ->
+            listOf(
+                "Дадан 300",
+                "Магазин 145",
+                "Рута"
+            ).forEach { item ->
+
                 Button(
-                    onClick = { frameType = item },
+                    onClick = {
+                        frameType = item
+                    },
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
                     Text(item)
@@ -42,13 +65,22 @@ fun DatasetScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
-        Text("Сторона")
+        Text("Сторона рамки")
+
         Row {
-            listOf("A", "B").forEach { item ->
+            listOf(
+                "Ліва",
+                "Права"
+            ).forEach { item ->
+
                 Button(
-                    onClick = { frameSide = item },
+                    onClick = {
+                        frameSide = item
+                    },
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
                     Text(item)
@@ -56,13 +88,26 @@ fun DatasetScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
         Text("Основний вміст")
+
         Column {
-            listOf("Мед", "Розплід", "Перга", "Змішана", "Суш").forEach { item ->
+
+            listOf(
+                "Мед",
+                "Розплід",
+                "Перга",
+                "Змішана",
+                "Суш"
+            ).forEach { item ->
+
                 Button(
-                    onClick = { mainContent = item },
+                    onClick = {
+                        mainContent = item
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 8.dp)
@@ -72,33 +117,48 @@ fun DatasetScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
         OutlinedTextField(
             value = comment,
-            onValueChange = { comment = it },
-            label = { Text("Коментар") },
+            onValueChange = {
+                comment = it
+            },
+            label = {
+                Text("Коментар")
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
 
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                onContinue(frameType, frameSide, mainContent, comment)
+                onContinue(
+                    frameType,
+                    frameSide,
+                    mainContent,
+                    comment
+                )
             }
         ) {
-            Text("Продовжити до камери")
+            Text("📷 Продовжити до камери")
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
 
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = onBack
         ) {
-            Text("Назад")
+            Text("⬅ Назад")
         }
     }
 }
