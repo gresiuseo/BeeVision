@@ -9,64 +9,58 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun HomeScreen() {
-
+fun HomeScreen(
+    onScanClick: () -> Unit,
+    onHistoryClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-
+            .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(32.dp))
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Text("🐝 BeeVision", fontSize = 34.sp)
+        Text("AI Hive Intelligence")
 
-        Text(
-            text = "🐝 BeeVision",
-            fontSize = 32.sp
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "AI-powered beehive analysis"
-        )
-
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = { },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            onClick = onScanClick
         ) {
             Text("📷 Сканувати рамку")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         Button(
-            onClick = { },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            onClick = onHistoryClick
         ) {
             Text("🖼 Історія")
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        Card(
-            modifier = Modifier.fillMaxWidth()
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { }
         ) {
+            Text("⚙ Налаштування")
+        }
 
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
+        Spacer(modifier = Modifier.height(32.dp))
 
-                Text("Статистика")
-
-                Spacer(modifier = Modifier.height(12.dp))
-
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text("📊 Статистика")
+                Spacer(modifier = Modifier.height(10.dp))
                 Text("Вуликів: 0")
-                Text("Рамок: 0")
-                Text("Аналізів: 0")
+                Text("Рамок у датасеті: 0")
+                Text("AI-аналізів: 0")
+                Text("Статус AI: Навчання")
             }
         }
     }
