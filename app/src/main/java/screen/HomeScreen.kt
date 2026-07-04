@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun HomeScreen(
+    datasetCount: Int,
     onScanClick: () -> Unit,
     onHistoryClick: () -> Unit
 ) {
@@ -58,7 +59,7 @@ fun HomeScreen(
                 Text("📊 Статистика")
                 Spacer(modifier = Modifier.height(10.dp))
                 Text("Вуликів: 0")
-                Text("Рамок у датасеті: 0")
+                Text("Рамок у датасеті: $datasetCount")
                 Text("AI-аналізів: 0")
                 Text("Статус AI: Навчання")
             }

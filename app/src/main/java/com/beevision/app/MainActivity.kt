@@ -56,6 +56,7 @@ class MainActivity : ComponentActivity() {
 
                 when (val screen = currentScreen) {
                     Screen.Home -> HomeScreen(
+                        datasetCount = history.size,
                         onScanClick = { currentScreen = Screen.Dataset },
                         onHistoryClick = { currentScreen = Screen.History }
                     )
