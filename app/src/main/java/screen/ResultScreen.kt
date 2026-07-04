@@ -74,33 +74,16 @@ fun ResultScreen(
                 modifier = Modifier.padding(16.dp)
             ) {
 
-                Text(
-                    "Усього комірок: ${result.totalCells}"
-                )
+                Text("Усього комірок: ${result.totalCells}")
 
-                Spacer(
-                    modifier = Modifier.height(8.dp)
-                )
+                Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    "🐝 Розплід: ${result.broodCells} ($broodPercent%)"
-                )
+                Text("🐝 Розплід: ${result.broodCells} ($broodPercent%)")
+                Text("🍯 Мед: ${result.honeyCells} ($honeyPercent%)")
+                Text("🌾 Перга: ${result.pollenCells} ($pollenPercent%)")
+                Text("⬜ Порожні: ${result.emptyCells} ($emptyPercent%)")
 
-                Text(
-                    "🍯 Мед: ${result.honeyCells} ($honeyPercent%)"
-                )
-
-                Text(
-                    "🌾 Перга: ${result.pollenCells} ($pollenPercent%)"
-                )
-
-                Text(
-                    "⬜ Порожні: ${result.emptyCells} ($emptyPercent%)"
-                )
-
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text("Тип рамки: ${result.frameType}")
                 Text("Сторона: ${result.frameSide}")
@@ -108,21 +91,21 @@ fun ResultScreen(
                 Text("Дата: ${result.createdAt}")
 
                 if (result.comment.isNotBlank()) {
-
-                    Spacer(
-                        modifier = Modifier.height(8.dp)
-                    )
-
-                    Text(
-                        "Коментар: ${result.comment}"
-                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Коментар: ${result.comment}")
                 }
             }
         }
 
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
+        if (result.frameMap != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            FrameMapView(
+                frameMap = result.frameMap
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             modifier = Modifier.fillMaxWidth(),
