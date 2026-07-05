@@ -25,6 +25,8 @@ data class ScanResult(
 
     val frameMap: FrameMap? = null,
 
+    val colonyScore: Int = 0,
+
     val createdAt: String = currentDateTime()
 )
 

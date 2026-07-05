@@ -1,5 +1,7 @@
 package com.beevision.app.screen
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,86 +18,75 @@ fun DatasetScreen(
         comment: String
     ) -> Unit
 ) {
-
-    var frameType by remember {
-        mutableStateOf("Дадан 300")
-    }
-
-    var frameSide by remember {
-        mutableStateOf("Ліва")
-    }
-
-    var mainContent by remember {
-        mutableStateOf("Змішана")
-    }
-
-    var comment by remember {
-        mutableStateOf("")
-    }
+    var frameType by remember { mutableStateOf("Дадан 300") }
+    var frameSide by remember { mutableStateOf("Ліва") }
+    var mainContent by remember { mutableStateOf("Змішана") }
+    var comment by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(
+                start = 20.dp,
+                top = 42.dp,
+                end = 20.dp,
+                bottom = 24.dp
+            )
     ) {
-
-        Text("🧬 Дані для навчання AI")
-
-        Spacer(
-            modifier = Modifier.height(16.dp)
+        Text(
+            text = "🧬 Дані для навчання AI",
+            style = MaterialTheme.typography.headlineSmall
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text("Тип рамки")
 
-        Row {
+        Column {
             listOf(
                 "Дадан 300",
                 "Магазин 145",
-                "Рута"
+                "Рута",
+                "Українська"
             ).forEach { item ->
-
                 Button(
-                    onClick = {
-                        frameType = item
-                    },
-                    modifier = Modifier.padding(end = 8.dp)
+                    onClick = { frameType = item },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
                 ) {
-                    Text(item)
+                    Text(
+                        if (item == frameType) "✅ $item" else item
+                    )
                 }
             }
         }
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text("Сторона рамки")
 
         Row {
-            listOf(
-                "Ліва",
-                "Права"
-            ).forEach { item ->
-
+            listOf("Ліва", "Права").forEach { item ->
                 Button(
-                    onClick = {
-                        frameSide = item
-                    },
-                    modifier = Modifier.padding(end = 8.dp)
+                    onClick = { frameSide = item },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp)
                 ) {
-                    Text(item)
+                    Text(
+                        if (item == frameSide) "✅ $item" else item
+                    )
                 }
             }
         }
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text("Основний вміст")
 
         Column {
-
             listOf(
                 "Мед",
                 "Розплід",
@@ -103,38 +94,43 @@ fun DatasetScreen(
                 "Змішана",
                 "Суш"
             ).forEach { item ->
-
                 Button(
-                    onClick = {
-                        mainContent = item
-                    },
+                    onClick = { mainContent = item },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 8.dp)
                 ) {
-                    Text(item)
+                    Text(
+                        if (item == mainContent) "✅ $item" else item
+                    )
                 }
             }
         }
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = comment,
-            onValueChange = {
-                comment = it
-            },
-            label = {
-                Text("Коментар")
-            },
+            onValueChange = { comment = it },
+            label = { Text("Коментар") },
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = if (frameType == "Українська")
+                    "📱 Українська рамка: на екрані камери тримай телефон вертикально"
+                else
+                    "📱 Цей тип рамки: на екрані камери тримай телефон горизонтально",
+                modifier = Modifier.padding(12.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         Button(
             modifier = Modifier.fillMaxWidth(),
@@ -150,9 +146,7 @@ fun DatasetScreen(
             Text("📷 Продовжити до камери")
         }
 
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
+        Spacer(modifier = Modifier.height(8.dp))
 
         Button(
             modifier = Modifier.fillMaxWidth(),

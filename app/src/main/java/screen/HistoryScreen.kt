@@ -128,7 +128,16 @@ fun HistoryScreen(
                             Text("Сторона: ${result.frameSide}")
                             Text("Вміст: ${result.mainContent}")
                             Text("Дата: ${result.createdAt}")
+                            if (result.frameMap != null) {
 
+                                Spacer(
+                                    modifier = Modifier.height(12.dp)
+                                )
+
+                                FrameMapView(
+                                    frameMap = result.frameMap
+                                )
+                            }
                             if (result.comment.isNotBlank()) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text("Коментар: ${result.comment}")
