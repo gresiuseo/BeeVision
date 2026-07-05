@@ -1,55 +1,41 @@
 package com.beevision.app.screen
 
 import android.Manifest
-import android.app.Activity
 import android.content.ContentValues
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.MediaStore
-import android.view.Surface
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import java.util.concurrent.Executors
 
 @Composable
 fun CameraScreen(
     frameType: String,
     onBack: () -> Unit,
-    onPhotoCaptured: (Uri?) -> Unit
+    onPhotoCaptured: (Uri) -> Unit
 ) {
     val context = LocalContext.current
-    val activity = context as? Activity
     val lifecycleOwner = LocalLifecycleOwner.current
-
-    val isUkrainianFrame = frameType == "Українська"
-
-    DisposableEffect(frameType) {
-        activity?.requestedOrientation =
-            if (isUkrainianFrame) {
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            } else {
-                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            }
-
-        onDispose {
-            activity?.requestedOrientation =
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        }
-    }
 
     var hasPermission by remember {
         mutableStateOf(
@@ -60,11 +46,15 @@ fun CameraScreen(
         )
     }
 
+    var imageCapture by remember {
+        mutableStateOf<ImageCapture?>(null)
+    }
+
     val permissionLauncher =
         rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission()
-        ) {
-            hasPermission = it
+        ) { granted ->
+            hasPermission = granted
         }
 
     LaunchedEffect(Unit) {
@@ -73,136 +63,221 @@ fun CameraScreen(
         }
     }
 
+    val orientationHint =
+        when (frameType) {
+            "Українська" -> "Тримай телефон вертикально"
+            "Дадан 300", "Магазин 145", "Рута" -> "Тримай телефон горизонтально"
+            else -> "Тримай телефон так, щоб рамка повністю вмістилась у кадр"
+        }
+
     if (!hasPermission) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
+                .background(Color.Black),
+            contentAlignment = Alignment.Center
         ) {
-            Text("Потрібен доступ до камери")
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    permissionLauncher.launch(Manifest.permission.CAMERA)
-                }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text("Дозволити")
+                Text(
+                    text = "Потрібен дозвіл на камеру",
+                    color = Color.White
+                )
+
+                Button(
+                    onClick = {
+                        permissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
+                ) {
+                    Text("Дати дозвіл")
+                }
+
+                Button(
+                    onClick = onBack
+                ) {
+                    Text("Назад")
+                }
             }
         }
+
         return
     }
 
-    val imageCapture = remember(frameType) {
-        ImageCapture.Builder()
-            .setTargetRotation(
-                if (isUkrainianFrame) Surface.ROTATION_0
-                else Surface.ROTATION_90
-            )
-            .build()
-    }
-
-    Column(
-        modifier = Modifier.fillMaxSize()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
     ) {
-        Text(
-            text = if (isUkrainianFrame)
-                "🇺🇦 Українська рамка: тримай телефон вертикально"
-            else
-                "📱 $frameType: тримай телефон горизонтально",
-            modifier = Modifier.padding(12.dp)
-        )
-
         AndroidView(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.fillMaxSize(),
             factory = { ctx ->
-
                 val previewView = PreviewView(ctx)
+
                 val cameraProviderFuture =
                     ProcessCameraProvider.getInstance(ctx)
 
-                cameraProviderFuture.addListener({
+                cameraProviderFuture.addListener(
+                    {
+                        val cameraProvider =
+                            cameraProviderFuture.get()
 
-                    val cameraProvider =
-                        cameraProviderFuture.get()
+                        val preview =
+                            Preview.Builder()
+                                .build()
+                                .also { previewUseCase ->
+                                    previewUseCase.setSurfaceProvider(
+                                        previewView.surfaceProvider
+                                    )
+                                }
 
-                    val preview =
-                        androidx.camera.core.Preview.Builder()
-                            .setTargetRotation(
-                                if (isUkrainianFrame) Surface.ROTATION_0
-                                else Surface.ROTATION_90
+                        val capture =
+                            ImageCapture.Builder()
+                                .setCaptureMode(
+                                    ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+                                )
+                                .build()
+
+                        imageCapture = capture
+
+                        try {
+                            cameraProvider.unbindAll()
+
+                            cameraProvider.bindToLifecycle(
+                                lifecycleOwner,
+                                CameraSelector.DEFAULT_BACK_CAMERA,
+                                preview,
+                                capture
                             )
-                            .build()
-
-                    preview.surfaceProvider =
-                        previewView.surfaceProvider
-
-                    cameraProvider.unbindAll()
-
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner,
-                        androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA,
-                        preview,
-                        imageCapture
-                    )
-
-                }, ContextCompat.getMainExecutor(ctx))
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    },
+                    ContextCompat.getMainExecutor(ctx)
+                )
 
                 previewView
             }
         )
 
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Button(onClick = onBack) {
-                Text("Назад")
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "Тип рамки: $frameType",
+                    color = Color.White,
+                    modifier = Modifier
+                        .background(
+                            color = Color.Black.copy(alpha = 0.55f),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                )
+
+                Text(
+                    text = orientationHint,
+                    color = Color.White,
+                    modifier = Modifier
+                        .background(
+                            color = Color.Black.copy(alpha = 0.55f),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                )
             }
 
-            Button(
-                onClick = {
-                    val name =
-                        "BeeVision_${System.currentTimeMillis()}"
-
-                    val values = ContentValues().apply {
-                        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-                        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-                    }
-
-                    val output =
-                        ImageCapture.OutputFileOptions
-                            .Builder(
-                                context.contentResolver,
-                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                values
-                            )
-                            .build()
-
-                    imageCapture.takePicture(
-                        output,
-                        Executors.newSingleThreadExecutor(),
-                        object : ImageCapture.OnImageSavedCallback {
-
-                            override fun onImageSaved(
-                                result: ImageCapture.OutputFileResults
-                            ) {
-                                onPhotoCaptured(result.savedUri)
-                            }
-
-                            override fun onError(
-                                exception: ImageCaptureException
-                            ) {
-                            }
-                        }
-                    )
-                }
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text("📷 Фото")
+                Button(
+                    onClick = {
+                        takePhoto(
+                            context = context,
+                            imageCapture = imageCapture,
+                            onPhotoCaptured = onPhotoCaptured
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Зробити фото")
+                }
+
+                Button(
+                    onClick = onBack,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Назад")
+                }
             }
         }
     }
+}
+
+private fun takePhoto(
+    context: android.content.Context,
+    imageCapture: ImageCapture?,
+    onPhotoCaptured: (Uri) -> Unit
+) {
+    val capture = imageCapture ?: return
+
+    val name =
+        "beevision_${System.currentTimeMillis()}"
+
+    val contentValues =
+        ContentValues().apply {
+            put(
+                MediaStore.MediaColumns.DISPLAY_NAME,
+                name
+            )
+
+            put(
+                MediaStore.MediaColumns.MIME_TYPE,
+                "image/jpeg"
+            )
+
+            put(
+                MediaStore.Images.Media.RELATIVE_PATH,
+                "Pictures/BeeVision"
+            )
+        }
+
+    val outputOptions =
+        ImageCapture.OutputFileOptions.Builder(
+            context.contentResolver,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        ).build()
+
+    capture.takePicture(
+        outputOptions,
+        ContextCompat.getMainExecutor(context),
+        object : ImageCapture.OnImageSavedCallback {
+
+            override fun onImageSaved(
+                outputFileResults: ImageCapture.OutputFileResults
+            ) {
+                val savedUri =
+                    outputFileResults.savedUri
+
+                if (savedUri != null) {
+                    onPhotoCaptured(savedUri)
+                }
+            }
+
+            override fun onError(
+                exception: ImageCaptureException
+            ) {
+                exception.printStackTrace()
+            }
+        }
+    )
 }

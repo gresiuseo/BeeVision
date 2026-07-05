@@ -90,12 +90,7 @@ class MainActivity : ComponentActivity() {
                         onBack = {
                             currentScreen = Screen.Home
                         },
-                        onContinue = {
-                                frameType,
-                                frameSide,
-                                mainContent,
-                                comment ->
-
+                        onContinue = { frameType, frameSide, mainContent, comment ->
                             selectedFrameType = frameType
                             selectedFrameSide = frameSide
                             selectedMainContent = mainContent
